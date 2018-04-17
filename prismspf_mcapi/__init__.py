@@ -14,6 +14,7 @@ def set_templates(value=None):
         # dictionary of cmdname -> template_id
         templates = {
           'parameters': 'global_Phase Field Simulation: Numerical Parameters',
+          'simulation': 'global_Phase Field Simulation',
         }
     else:
         templates = value

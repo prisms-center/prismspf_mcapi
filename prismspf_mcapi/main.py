@@ -4,11 +4,13 @@ import argparse
 import sys
 import StringIO
 from prismspf_mcapi.parameters import ParametersSubcommand
+from prismspf_mcapi.simulation import SimulationSubcommand
 
 #import prismspf_mcapi.samples
 
 prismspf_usage = [
-    {'name':'parameters', 'desc': ParametersSubcommand.desc, 'subcommand': ParametersSubcommand()}
+    {'name':'parameters', 'desc': ParametersSubcommand.desc, 'subcommand': ParametersSubcommand()},
+    {'name':'simulation', 'desc': SimulationSubcommand.desc, 'subcommand': SimulationSubcommand()}
 ]
 
 def prismspf_subcommand(argv=sys.argv):

@@ -25,7 +25,7 @@ def get_parameters_sample(expt, sample_id=None, out=sys.stdout):
 
     """
     if sample_id is None:
-        candidate_parameters = [proc for proc in expt.get_all_processes() if proc.template_id == prismspf_mcapi.templates['prim']]
+        candidate_parameters = [proc for proc in expt.get_all_processes() if proc.template_id == prismspf_mcapi.templates['parameters']]
         if len(candidate_parameters) == 0:
             out.write('Did not find a Numerical Parameters sample.\n')
             out.write('Use \'mc prismspf parameters --create\' to create a Numerical Parameters sample, or --parameters-id <id> to specify explicitly.\n')
@@ -42,8 +42,10 @@ def get_parameters_sample(expt, sample_id=None, out=sys.stdout):
         parameters_proc.decorate_with_output_samples()
         return parameters_proc.output_samples[0]
     else:
-        parameters = expt.get_sample_by_id(sample_id)
-    return paramaters
+        print("The sample id is: ")
+        print(sample_id[0])
+        parameters = expt.get_sample_by_id(sample_id[0])
+    return parameters
 
 
 def create_parameters_sample(expt, sample_name=None, verbose=False):
@@ -81,18 +83,20 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
     ## Create sample
     if sample_name is None:
         sample_name = "Numerical_Parameters"
-    proc.create_samples([sample_name])
+    new_sample = proc.create_samples([sample_name])
 
     proc = expt.get_process_by_id(proc.id)
 
     # Sample attributes (how to check names?):
     parameter_list = parse_parameters_file()
 
-    # proc.add_number_measurement('Domain size (x)', parameter_list['Domain size (x)'])
-    # proc.add_float_measurement('Domain size (y)', parameter_list['Domain size (y)'])
-    # proc.add_float_measurement('Domain size (z)', parameter_list['Domain size (z)'])
+    proc.add_number_measurement('Domain size (x)', parameter_list['Domain size (x)'])
+    # proc.add_number_measurement('Domain size (y)', parameter_list['Domain size (y)'])
+    # proc.add_number_measurement('Domain size (z)', parameter_list['Domain size (z)'])
 
     proc.add_integer_measurement('Element degree', 2)
+
+    #new_sample[0].pretty_print()
 
     parameters_file = expt.project.add_file_by_local_path('parameters.in', verbose=verbose)  # I need to pass in the path to the PRISMS-PF app folder
     proc.add_files([parameters_file])
