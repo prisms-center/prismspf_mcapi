@@ -43,7 +43,9 @@ def get_simulation_sample(expt, sample_id=None, out=sys.stdout):
         simulation_proc.decorate_with_output_samples()
         return simulation_proc.output_samples[0]
     else:
+        # This is broken, temporarily replaced by the first sample in the experiment
         simulation = expt.get_sample_by_id(sample_id)
+
     return simulation
 
 
@@ -81,14 +83,11 @@ def create_simulation_sample(expt, parameters_sample, sample_name=None, verbose=
 
     proc.rename('Run_' + 'Simulation')
 
-    ## Create sample
-    if sample_name is None:
-        sample_name = "Phase Field Simulation"
-    new_sample = proc.create_samples([sample_name])
-
     proc = expt.get_process_by_id(proc.id)
 
-    proc.add_input_samples_to_process(parameters_sample)
+    print("Adding input sample(s)...")
+    proc.add_input_samples_to_process([parameters_sample])
+    print("Finshed adding input sample(s).")
 
     return expt.get_process_by_id(proc.id)
 

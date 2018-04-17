@@ -44,7 +44,15 @@ def get_parameters_sample(expt, sample_id=None, out=sys.stdout):
     else:
         print("The sample id is: ")
         print(sample_id[0])
-        parameters = expt.get_sample_by_id(sample_id[0])
+        # This is broken, temporarily replaced by the first sample in the experiment
+        #parameters = expt.get_sample_by_id(sample_id)
+
+        # Temp hack-y fix
+        candidate_parameters = [proc for proc in expt.get_all_processes() if proc.template_id == prismspf_mcapi.templates['parameters']]
+        parameters_proc = candidate_parameters[0]
+        parameters_proc.decorate_with_output_samples()
+        return parameters_proc.output_samples[0]
+
     return parameters
 
 
