@@ -2,8 +2,10 @@
 
 import sys
 import prismspf_mcapi
+from prismspf_mcapi.prismspf_parameter_parser import parse_parameters_file
 from materials_commons.cli import ListObjects
 from materials_commons.cli.functions import make_local_project, make_local_expt
+
 
 def get_parameters_sample(expt, sample_id=None, out=sys.stdout):
     """
@@ -83,9 +85,6 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
     ## Process that will create samples
     proc = expt.create_process_from_template(template_id)
 
-    # Hardcoding the name of the template
-    # proc = expt.create_process_from_template('global_Create Samples')
-
     proc.rename('Set_' + 'Numerical_Parameters')
 
     ## Create sample
@@ -95,30 +94,139 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
 
     proc = expt.get_process_by_id(proc.id)
 
-    # Sample attributes (how to check names?):
-    parameter_list = parse_parameters_file()
+    # Populate the list of numerical parameter descriptors used in parameters.in (skipping anything in a subsection for now)
+    # The order of entries is "descriptor string in parameters.in", "type", "default value", "the subsection name" (if applicable)
+    parameter_descriptor_list = []
+    parameter_descriptor_list.append(('Domain size X', 'double', '-1', ''))
+    parameter_descriptor_list.append(('Domain size Y', 'double', '-1', ''))
+    parameter_descriptor_list.append(('Domain size Z', 'double', '-1', ''))
+    parameter_descriptor_list.append(('Element degree', 'int', '1', ''))
+    parameter_descriptor_list.append(('Number of dimensions', 'int', '-1', ''))
+    parameter_descriptor_list.append(('Subdivisions X', 'int', '1', ''))
+    parameter_descriptor_list.append(('Subdivisions Y', 'int', '1', ''))
+    parameter_descriptor_list.append(('Subdivisions Z', 'int', '1', ''))
+    parameter_descriptor_list.append(('Refine factor', 'int', '-1', ''))
+    parameter_descriptor_list.append(('Mesh adaptivity', 'bool', 'false', ''))
+    parameter_descriptor_list.append(('Max refinement level', 'int', '-1', ''))
+    parameter_descriptor_list.append(('Min refinement level', 'int', '-1', ''))
+    parameter_descriptor_list.append(('Refinement criteria fields', 'string', '', ''))  # Actually a list of strings
+    parameter_descriptor_list.append(('Refinement window max', 'string', '', ''))  # Actually a list of doubles
+    parameter_descriptor_list.append(('Refinement window min', 'string', '', ''))  # Actually a list of doubles
+    parameter_descriptor_list.append(('Steps between remeshing operations', 'int', '1', ''))
+    parameter_descriptor_list.append(('Number of time steps', 'int', '-1', ''))
+    parameter_descriptor_list.append(('Time step', 'double', '0', ''))
+    parameter_descriptor_list.append(('Simulation end time', 'double', '0', ''))
+    parameter_descriptor_list.append(('Output file name (base)', 'string', 'solution', ''))
+    parameter_descriptor_list.append(('Output file type', 'string', 'vtu', ''))
+    parameter_descriptor_list.append(('Output separate files per process', 'bool', 'false', ''))
+    parameter_descriptor_list.append(('Output condition', 'string', 'EQUAL_SPACING', ''))
+    parameter_descriptor_list.append(('List of time steps to output', 'string', '0', ''))  # Actually a list of ints
+    parameter_descriptor_list.append(('Number of outputs', 'int', '10', ''))
+    parameter_descriptor_list.append(('Skip print steps', 'int', '1', ''))
+    parameter_descriptor_list.append(('Load initial conditions', 'bool', 'false', ''))
+    parameter_descriptor_list.append(('Load parallel file', 'bool', 'false', ''))
+    parameter_descriptor_list.append(('File names', 'string', '', ''))  # Actually a list of strings
+    parameter_descriptor_list.append(('Variable names in the files', 'string', '', ''))  # Actually a list of strings
+    parameter_descriptor_list.append(('Load from a checkpoint', 'bool', 'false', ''))
+    parameter_descriptor_list.append(('Checkpoint condition', 'string', 'EQUAL_SPACING', ''))
+    parameter_descriptor_list.append(('List of time steps to save checkpoints', 'string', '0', ''))  # Actually a list of ints
+    parameter_descriptor_list.append(('Number of checkpoints', 'int', '1', ''))
 
-    proc.add_number_measurement('Domain size (x)', parameter_list['Domain size (x)'])
-    # proc.add_number_measurement('Domain size (y)', parameter_list['Domain size (y)'])
-    # proc.add_number_measurement('Domain size (z)', parameter_list['Domain size (z)'])
+    parameter_descriptor_list.append(('Tolerance type', 'string', 'RELATIVE_RESIDUAL_CHANGE', 'Linear solver parameters:'))
+    parameter_descriptor_list.append(('Tolerance value', 'double', '1.0e-10', 'Linear solver parameters:'))
+    parameter_descriptor_list.append(('Maximum linear solver iterations', 'int', '1000', 'Linear solver parameters:'))
 
-    proc.add_integer_measurement('Element degree', 2)
+    parameter_descriptor_list.append(('Maximum nonlinear solver iterations', 'int', '100', ''))
+    parameter_descriptor_list.append(('Tolerance type', 'string', 'ABSOLUTE_CHANGE', 'Nonlinear solver parameters:'))
+    parameter_descriptor_list.append(('Tolerance value', 'double', '1.0e-10', 'Nonlinear solver parameters:'))
+    parameter_descriptor_list.append(('Use backtracking line search damping', 'bool', 'true', 'Nonlinear solver parameters:'))
+    parameter_descriptor_list.append(('Backtracking step size modifier', 'double', '0.5', 'Nonlinear solver parameters:'))
+    parameter_descriptor_list.append(('Backtracking residual decrease coefficient', 'double', '1.0', 'Nonlinear solver parameters:'))
+    parameter_descriptor_list.append(('Constant damping value', 'double', '1.0', 'Nonlinear solver parameters:'))
+    parameter_descriptor_list.append(('Use Laplace\'s equation to determine the initial guess', 'bool', 'false', 'Nonlinear solver parameters:'))
 
-    #new_sample[0].pretty_print()
+    parameter_descriptor_list.append(('Minimum allowed distance between nuclei', 'double', '-1', ''))
+    parameter_descriptor_list.append(('Order parameter cutoff value', 'double', '0.01', ''))
+    parameter_descriptor_list.append(('Time steps between nucleation attempts', 'int', '100', ''))
+
+    parameter_descriptor_list.append(('Nucleus semiaxes (x, y, z)', 'string', '0,0,0', 'Nucleation parameters:'))  # Actually a list of doubles
+    parameter_descriptor_list.append(('Nucleus rotation in degrees (x, y, z)', 'string', '0,0,0', 'Nucleation parameters:'))  # Actually a list of doubles
+    parameter_descriptor_list.append(('Freeze zone semiaxes (x, y, z)', 'string', '0,0,0', 'Nucleation parameters:'))  # Actually a list of doubles
+    parameter_descriptor_list.append(('Freeze time following nucleation', 'double', '0', 'Nucleation parameters:'))
+    parameter_descriptor_list.append(('Nucleation-free border thickness', 'double', '0', 'Nucleation parameters:'))
+
+
+    parameter_dictionary = parse_parameters_file()
+
+    for parameter_descriptor in parameter_descriptor_list:
+        # The standard case where a parameter is directly set in the parameters file
+        if parameter_descriptor[0] in parameter_dictionary:
+            parameter_value = parameter_dictionary[parameter_descriptor[0]]
+            parameter_description = parameter_descriptor[0]
+
+            if parameter_descriptor[1] == 'double':
+                proc.add_number_measurement(parameter_description, parameter_value)
+            elif parameter_descriptor[1] == 'int':
+                proc.add_integer_measurement(parameter_description, parameter_value)
+            elif parameter_descriptor[1] == 'string':
+                proc.add_string_measurement(parameter_description, parameter_value)
+            elif parameter_descriptor[1] == 'bool':
+                proc.add_boolean_measurement(parameter_description, parameter_value)
+
+        # The default value if the parameter isn't set in the parameters file
+        elif len(parameter_descriptor[3]) < 1:
+            parameter_value = parameter_descriptor[2]
+            parameter_description = parameter_descriptor[0]
+
+            if parameter_descriptor[1] == 'double':
+                proc.add_number_measurement(parameter_description, parameter_value)
+            elif parameter_descriptor[1] == 'int':
+                proc.add_integer_measurement(parameter_description, parameter_value)
+            elif parameter_descriptor[1] == 'string':
+                proc.add_string_measurement(parameter_description, parameter_value)
+            elif parameter_descriptor[1] == 'bool':
+                proc.add_boolean_measurement(parameter_description, parameter_value)
+
+        else:
+            # Need to find all versions of the parameters in subsections
+            base_subsection_name = parameter_descriptor[3]
+            base_subsection_name = base_subsection_name[:-1]
+
+            for entry in parameter_dictionary:
+                if entry[:len(base_subsection_name)] == base_subsection_name and entry[-len(parameter_descriptor[0]):] == parameter_descriptor[0]:
+                    parameter_value = parameter_dictionary[entry]
+                    parameter_description = entry
+
+                    if parameter_descriptor[1] == 'double':
+                        proc.add_number_measurement(parameter_description, parameter_value)
+                    elif parameter_descriptor[1] == 'int':
+                        proc.add_integer_measurement(parameter_description, parameter_value)
+                    elif parameter_descriptor[1] == 'string':
+                        proc.add_string_measurement(parameter_description, parameter_value)
+                    elif parameter_descriptor[1] == 'bool':
+                        proc.add_boolean_measurement(parameter_description, parameter_value)
+
+
+
+
+    # new_sample[0].pretty_print(shift=0, indent=2, out=sys.stdout)
 
     parameters_file = expt.project.add_file_by_local_path('parameters.in', verbose=verbose)  # I need to pass in the path to the PRISMS-PF app folder
     proc.add_files([parameters_file])
 
     return expt.get_process_by_id(proc.id)
 
-def parse_parameters_file():
+"""
+def parse_parameters_file(parameter_descriptor_list):
     # Starting out this will be a dummy function where I just set the parameters. Later I'll add the file parse_args
-    parameter_list = {}
-    parameter_list['Domain size (x)'] = 1
-    parameter_list['Domain size (y)'] = 1
-    parameter_list['Domain size (z)'] = 1
+    parameter_dictionary = {}
+    parameter_dictionary['Domain size (x)'] = 1.0
+    parameter_dictionary['Domain size (y)'] = 1.0
+    parameter_dictionary['Domain size (z)'] = 1.0
+    parameter_dictionary['Element degree'] = 2
 
-    return parameter_list
+    return parameter_dictionary
+"""
 
 class ParametersSubcommand(ListObjects):
     desc = "(sample) PRISMS-PF Numerical Parameters"

@@ -22,7 +22,7 @@ def set_templates(value=None):
 # set default template ids
 set_templates()
 
-# specify the version of casm these functions work for
+# specify the version of PRISMS-PF these functions work for
 VERSION = "2.0.1"
 MCAPI_NAME = "prismspf"
 MCAPI_DESC = "Create and inspect PRISMS-PF samples, processes, measurements, etc."

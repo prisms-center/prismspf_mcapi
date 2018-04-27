@@ -2,19 +2,21 @@
 
 import argparse
 import sys
-import StringIO
+from io import BytesIO     # for handling byte strings
+from io import StringIO    # for handling unicode strings
 from prismspf_mcapi.parameters import ParametersSubcommand
 from prismspf_mcapi.simulation import SimulationSubcommand
 
-#import prismspf_mcapi.samples
+# import prismspf_mcapi.samples
 
 prismspf_usage = [
     {'name':'parameters', 'desc': ParametersSubcommand.desc, 'subcommand': ParametersSubcommand()},
     {'name':'simulation', 'desc': SimulationSubcommand.desc, 'subcommand': SimulationSubcommand()}
 ]
 
+
 def prismspf_subcommand(argv=sys.argv):
-    usage_help = StringIO.StringIO()
+    usage_help = StringIO()
     usage_help.write("mc prismspf <command> [<args>]\n\n")
     usage_help.write("The mc prismspf commands are:\n")
 
