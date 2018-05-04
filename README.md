@@ -1,5 +1,4 @@
-# prismspf_mcapi
-## PRISMS-PF - Materials Commons Interface
+# prismspf_mcapi: The PRISMS-PF/Materials Commons CLI Plugin
 
 This is the initial version of the Materials Commons command-line-interface plugin for PRISMS-PF, which is still under active development. The base Materials Commons CLI can be found [here](https://github.com/materials-commons/mcapi/tree/master/python).
 
@@ -38,3 +37,8 @@ This plugin assists you in creating a Materials Commons representation of phase 
 - Create the computing environment process and sample: `mc prismspf environment --create  --num-cores N`, where N is the number of cores used in the simulation
 - Get the list of sample ids from the samples created in the previous steps: `mc samp`
 - Create the phase field simulation process that takes all of the previously created samples as inputs: `mc prismspf simulation --create --input-sample-ids SAMPLE IDS`, where 'SAMPLE IDS' is replaced with a list of the sample ids from the input samples separated by spaces
+
+## Help
+Post any questions about using this plugin at the PRISMS-PF forum:
+
+https://groups.google.com/forum/#!forum/prisms-pf-users
