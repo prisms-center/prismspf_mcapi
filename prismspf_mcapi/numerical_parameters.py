@@ -27,10 +27,10 @@ def get_parameters_sample(expt, sample_id=None, out=sys.stdout):
 
     """
     if sample_id is None:
-        candidate_parameters = [proc for proc in expt.get_all_processes() if proc.template_id == prismspf_mcapi.templates['parameters']]
+        candidate_parameters = [proc for proc in expt.get_all_processes() if proc.template_id == prismspf_mcapi.templates['numerial_parameters']]
         if len(candidate_parameters) == 0:
             out.write('Did not find a Numerical Parameters sample.\n')
-            out.write('Use \'mc prismspf parameters --create\' to create a Numerical Parameters sample, or --parameters-id <id> to specify explicitly.\n')
+            out.write('Use \'mc prismspf numerical-parameters --create\' to create a Numerical Parameters sample, or --parameters-id <id> to specify explicitly.\n')
             out.write('Aborting\n')
             return None
         if len(candidate_parameters) > 1:
@@ -44,16 +44,22 @@ def get_parameters_sample(expt, sample_id=None, out=sys.stdout):
         parameters_proc.decorate_with_output_samples()
         return parameters_proc.output_samples[0]
     else:
-        print("The sample id is: ")
-        print(sample_id[0])
-        # This is broken, temporarily replaced by the first sample in the experiment
-        #parameters = expt.get_sample_by_id(sample_id)
+        # print("The sample id is: ")
+        # print(sample_id[0])
 
-        # Temp hack-y fix
-        candidate_parameters = [proc for proc in expt.get_all_processes() if proc.template_id == prismspf_mcapi.templates['parameters']]
-        parameters_proc = candidate_parameters[0]
-        parameters_proc.decorate_with_output_samples()
-        return parameters_proc.output_samples[0]
+        # This is broken, temporarily replaced by a more complicated work-around
+        # parameters = expt.get_sample_by_id(sample_id)
+
+        sample_found = False
+        for proc in expt.get_all_processes():
+            for sample in proc.get_all_samples():
+                if sample.id == sample_id[0]:
+                    # print("Sample found with id of: ", sample.id)
+                    parameters = sample
+                    sample_found = True
+                    break
+            if sample_found:
+                break
 
     return parameters
 
@@ -79,17 +85,17 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
         proc: mcapi.Process instance
           The Process that created the sample
     """
-    template_id = prismspf_mcapi.templates['parameters']
+    template_id = prismspf_mcapi.templates['numerical-parameters']
 
     print("The template ID is: " + template_id)
     ## Process that will create samples
     proc = expt.create_process_from_template(template_id)
 
-    proc.rename('Set_' + 'Numerical_Parameters')
+    proc.rename('Set ' + 'Numerical Parameters')
 
     ## Create sample
     if sample_name is None:
-        sample_name = "Numerical_Parameters"
+        sample_name = "Numerical Parameters"
     new_sample = proc.create_samples([sample_name])
 
     proc = expt.get_process_by_id(proc.id)
@@ -216,23 +222,12 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
 
     return expt.get_process_by_id(proc.id)
 
-"""
-def parse_parameters_file(parameter_descriptor_list):
-    # Starting out this will be a dummy function where I just set the parameters. Later I'll add the file parse_args
-    parameter_dictionary = {}
-    parameter_dictionary['Domain size (x)'] = 1.0
-    parameter_dictionary['Domain size (y)'] = 1.0
-    parameter_dictionary['Domain size (z)'] = 1.0
-    parameter_dictionary['Element degree'] = 2
 
-    return parameter_dictionary
-"""
-
-class ParametersSubcommand(ListObjects):
+class NumParametersSubcommand(ListObjects):
     desc = "(sample) PRISMS-PF Numerical Parameters"
 
     def __init__(self):
-        super(ParametersSubcommand, self).__init__(["prismspf", "parameters"], "Numerical Parameters", "Numerical_Parameters",
+        super(NumParametersSubcommand, self).__init__(["prismspf", "numerical-parameters"], "Numerical Parameters", "Numerical_Parameters",
             desc="Uploads parameters.in and creates an entity (sample) representing the numerical parameters.",
             expt_member=True,
             list_columns=['name', 'owner', 'template_name', 'id', 'mtime'],

@@ -2,7 +2,7 @@
 
 import sys
 import prismspf_mcapi
-from prismspf_mcapi.parameters import get_parameters_sample
+from prismspf_mcapi.numerical_parameters import get_parameters_sample
 from materials_commons.cli import ListObjects
 from materials_commons.cli.functions import make_local_project, make_local_expt
 
@@ -43,13 +43,27 @@ def get_simulation_sample(expt, sample_id=None, out=sys.stdout):
         simulation_proc.decorate_with_output_samples()
         return simulation_proc.output_samples[0]
     else:
-        # This is broken, temporarily replaced by the first sample in the experiment
-        simulation = expt.get_sample_by_id(sample_id)
+        # print("The sample id is: ")
+        # print(sample_id[0])
+
+        # This is broken, temporarily replaced by a more complicated work-around
+        # simulation = expt.get_sample_by_id(sample_id)
+
+        sample_found = False
+        for proc in expt.get_all_processes():
+            for sample in proc.get_all_samples():
+                if sample.id == sample_id[0]:
+                    # print("Sample found with id of: ", sample.id)
+                    simulation = sample
+                    sample_found = True
+                    break
+            if sample_found:
+                break
 
     return simulation
 
 
-def create_simulation_sample(expt, parameters_sample, sample_name=None, verbose=False):
+def create_simulation_sample(expt, sample_list, sample_name=None, verbose=False):
     """
     Create a PRISMS-PF Simulation Sample
 
@@ -59,7 +73,7 @@ def create_simulation_sample(expt, parameters_sample, sample_name=None, verbose=
 
         expt: mcapi.Experiment object
 
-        parameters_sample: an mcapi.Sample object containing the numerical parameters for the simulation
+        sample_list: a list of mcapi.Sample object containing the input information for the simulation
 
         sample_name: str
           Name for sample, default is: Phase Field Simulation
@@ -75,18 +89,18 @@ def create_simulation_sample(expt, parameters_sample, sample_name=None, verbose=
     template_id = prismspf_mcapi.templates['simulation']
 
     print("The template ID is: " + template_id)
-    ## Process that will create samples
+    # Process that will create samples
     proc = expt.create_process_from_template(template_id)
 
     # Hardcoding the name of the template
     # proc = expt.create_process_from_template('global_Create Samples')
 
-    proc.rename('Run_' + 'Simulation')
+    proc.rename('Run ' + 'Simulation')
 
     proc = expt.get_process_by_id(proc.id)
 
     print("Adding input sample(s)...")
-    proc.add_input_samples_to_process([parameters_sample])
+    proc.add_input_samples_to_process(sample_list)
     print("Finshed adding input sample(s).")
 
     return expt.get_process_by_id(proc.id)
@@ -113,15 +127,30 @@ class SimulationSubcommand(ListObjects):
         expt = make_local_expt(proj)
 
         # Get the necessary input samples
-        parameters_sample = get_parameters_sample(expt, args.parameters_id, out)
 
-        proc = create_simulation_sample(expt, parameters_sample, verbose=True)
+        sample_list = []
+        for sample_id in args.input_sample_ids:
+            sample_found = False
+            for proc in expt.get_all_processes():
+                for sample in proc.get_all_samples():
+                    if sample.id == sample_id:
+                        # print("Sample found with id of: ", sample.id)
+                        matching_sample = sample
+                        sample_found = True
+                        break
+                if sample_found:
+                    break
+            sample_list.append(matching_sample)
+
+        # parameters_sample = get_parameters_sample(expt, args.input_sample_ids[0], out)
+
+        proc = create_simulation_sample(expt, sample_list, verbose=True)
         out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
 
 
     def add_create_options(self, parser):
-        parameters_id_help = "Specify parameters sample id explicitly"
-        parser.add_argument('--parameters-id', nargs='*', default=None, help=parameters_id_help)
+        input_id_help = "Specify in sample ids explicitly"
+        parser.add_argument('--input-sample-ids', nargs='*', default=None, help=input_id_help)
 
         return
 
