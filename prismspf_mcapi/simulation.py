@@ -127,20 +127,50 @@ class SimulationSubcommand(ListObjects):
         expt = make_local_expt(proj)
 
         # Get the necessary input samples
-
         sample_list = []
-        for sample_id in args.input_sample_ids:
-            sample_found = False
-            for proc in expt.get_all_processes():
-                for sample in proc.get_all_samples():
-                    if sample.id == sample_id:
-                        # print("Sample found with id of: ", sample.id)
-                        matching_sample = sample
-                        sample_found = True
+
+        if args.full_simulation:
+            print("Creating input samples/processes for the simulation....")
+
+            proc = prismspf_mcapi.numerical_parameters.create_parameters_sample(expt, verbose=True)
+            out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
+            sample_list.extend(proc.output_samples)
+
+            proc = prismspf_mcapi.model_parameters.create_parameters_sample(expt, verbose=True)
+            out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
+            sample_list.extend(proc.output_samples)
+
+            proc = prismspf_mcapi.environment.create_environment_sample(expt, args, verbose=True)
+            out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
+            sample_list.extend(proc.output_samples)
+
+            proc_list = prismspf_mcapi.equations.create_equations_sample(expt, args, verbose=True)
+            for p in proc_list:
+                out.write('Created process: ' + p.name + ' ' + p.id + '\n')
+                sample_list.extend(p.output_samples)
+
+            proc = prismspf_mcapi.software.create_software_sample(expt, verbose=True)
+            out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
+            sample_list.extend(proc.output_samples)
+
+            out.write('List of samples created as inputs for the simulation sample:\n')
+            for s in sample_list:
+                out.write(s.name + ' ' + s.id + '\n')
+            out.write('\n')
+
+        else:
+            for sample_id in args.input_sample_ids:
+                sample_found = False
+                for proc in expt.get_all_processes():
+                    for sample in proc.get_all_samples():
+                        if sample.id == sample_id:
+                            # print("Sample found with id of: ", sample.id)
+                            matching_sample = sample
+                            sample_found = True
+                            break
+                    if sample_found:
                         break
-                if sample_found:
-                    break
-            sample_list.append(matching_sample)
+                sample_list.append(matching_sample)
 
         # parameters_sample = get_parameters_sample(expt, args.input_sample_ids[0], out)
 
@@ -149,6 +179,13 @@ class SimulationSubcommand(ListObjects):
 
 
     def add_create_options(self, parser):
+
+        full_simulation_help = "Create the simulation process as well as all of the necessary input samples and processes"
+        parser.add_argument('--full-simulation', action='store_true', help=full_simulation_help)
+
+        num_cores_help = "Add the number of cores to be used in the simulation"
+        parser.add_argument('--num-cores', nargs=1, default=-1, help=num_cores_help)
+
         input_id_help = "Specify in sample ids explicitly"
         parser.add_argument('--input-sample-ids', nargs='*', default=None, help=input_id_help)
 

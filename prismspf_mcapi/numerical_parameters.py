@@ -161,7 +161,6 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
     parameter_descriptor_list.append(('Freeze time following nucleation', 'double', '0', 'Nucleation parameters:'))
     parameter_descriptor_list.append(('Nucleation-free border thickness', 'double', '0', 'Nucleation parameters:'))
 
-
     parameter_dictionary = parse_parameters_file()
 
     for parameter_descriptor in parameter_descriptor_list:

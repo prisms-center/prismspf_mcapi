@@ -10,7 +10,6 @@ from prismspf_mcapi.software import SoftwareSubcommand
 from prismspf_mcapi.equations import EquationsSubcommand
 from prismspf_mcapi.environment import EnvironmentSubcommand
 from prismspf_mcapi.simulation import SimulationSubcommand
-from prismspf_mcapi.full_simulation import FullSimulationSubcommand
 
 
 # import prismspf_mcapi.samples
@@ -21,8 +20,7 @@ prismspf_usage = [
     {'name':'software', 'desc': SoftwareSubcommand.desc, 'subcommand': SoftwareSubcommand()},
     {'name':'equations', 'desc': EquationsSubcommand.desc, 'subcommand': EquationsSubcommand()},
     {'name':'environment', 'desc': EnvironmentSubcommand.desc, 'subcommand': EnvironmentSubcommand()},
-    {'name':'simulation', 'desc': SimulationSubcommand.desc, 'subcommand': SimulationSubcommand()} #,
-    #{'name':'full-simulation', 'desc': FullSimulationSubcommand.desc, 'subcommand': FullSimulationSubcommand()}
+    {'name':'simulation', 'desc': SimulationSubcommand.desc, 'subcommand': SimulationSubcommand()}
 ]
 
 
@@ -48,18 +46,7 @@ def prismspf_subcommand(argv=sys.argv):
     # exclude the rest of the args too, or validation will fail
     args = parser.parse_args(argv[2:3])
 
-    '''
     if args.command in interfaces:
-        interfaces[args.command]['subcommand'](argv)
-    else:
-        print('Unrecognized command')
-        parser.print_help()
-        exit(1)
-    '''
-
-    if args.command == 'full-simulation':
-        FullSimulationSubcommand(argv)
-    elif args.command in interfaces:
         interfaces[args.command]['subcommand'](argv)
     else:
         print('Unrecognized command')
