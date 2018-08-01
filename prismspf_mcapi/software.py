@@ -116,7 +116,7 @@ def create_software_sample(expt, sample_name=None, verbose=False):
             version = f.read()
         f.closed
     else:
-        print('Did not find the \'version\' file where expected (two directories up from the current working directory). The version is being uploaded as \'uknown\'.\n')
+        print('Did not find the \'version\' file where expected (two directories up from the current working directory). The version is being uploaded as \'unknown\'.\n')
         version = 'unknown'
 
     proc.add_string_measurement('Simulation Software Version', version)

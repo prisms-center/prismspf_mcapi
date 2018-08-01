@@ -114,6 +114,7 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
 
             single_parameter_types = ['double', 'int', 'bool']
 
+            '''
             if parameter_type.casefold() in single_parameter_types:
                 if parameter_type.casefold() == 'double':
                     proc.add_number_measurement(parameter_description, split_parameter_value_type_set[0])
@@ -121,6 +122,12 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
                     proc.add_integer_measurement(parameter_description, split_parameter_value_type_set[0])
                 elif parameter_type.casefold() == 'bool':
                     proc.add_boolean_measurement(parameter_description, split_parameter_value_type_set[0])
+            else:
+                # For tensors and elastic constants (currently just a string is uploaded, in the future I'd like to do much more formatting)
+                proc.add_string_measurement(parameter_description, ', '.join(split_parameter_value_type_set[:-1]))
+            '''
+            if parameter_type.casefold() in single_parameter_types:
+                proc.add_string_measurement(parameter_description, split_parameter_value_type_set[0])
             else:
                 # For tensors and elastic constants (currently just a string is uploaded, in the future I'd like to do much more formatting)
                 proc.add_string_measurement(parameter_description, ', '.join(split_parameter_value_type_set[:-1]))

@@ -92,9 +92,6 @@ def create_simulation_sample(expt, sample_list, sample_name=None, verbose=False)
     # Process that will create samples
     proc = expt.create_process_from_template(template_id)
 
-    # Hardcoding the name of the template
-    # proc = expt.create_process_from_template('global_Create Samples')
-
     proc.rename('Run ' + 'Simulation')
 
     proc = expt.get_process_by_id(proc.id)

@@ -105,7 +105,8 @@ def create_environment_sample(expt, args, sample_name=None, verbose=False):
 
     # Add the number of cores
     if int(args.num_cores[0]) > 0:
-        proc.add_integer_measurement('Number of simulation cores', int(args.num_cores[0]))
+        # proc.add_integer_measurement('Number of simulation cores', int(args.num_cores[0]))
+        proc.add_string_measurement('Number of simulation cores', args.num_cores[0])
     else:
         raise ValueError("The number of simulation cores must be explicitly given and must be > 0.")
 

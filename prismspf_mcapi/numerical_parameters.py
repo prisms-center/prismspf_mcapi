@@ -168,7 +168,7 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
         if parameter_descriptor[0] in parameter_dictionary:
             parameter_value = parameter_dictionary[parameter_descriptor[0]]
             parameter_description = parameter_descriptor[0]
-
+            '''
             if parameter_descriptor[1] == 'double':
                 proc.add_number_measurement(parameter_description, parameter_value)
             elif parameter_descriptor[1] == 'int':
@@ -177,12 +177,14 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
                 proc.add_string_measurement(parameter_description, parameter_value)
             elif parameter_descriptor[1] == 'bool':
                 proc.add_boolean_measurement(parameter_description, parameter_value)
+            '''
+            proc.add_string_measurement(parameter_description, parameter_value)
 
         # The default value if the parameter isn't set in the parameters file
         elif len(parameter_descriptor[3]) < 1:
             parameter_value = parameter_descriptor[2]
             parameter_description = parameter_descriptor[0]
-
+            '''
             if parameter_descriptor[1] == 'double':
                 proc.add_number_measurement(parameter_description, parameter_value)
             elif parameter_descriptor[1] == 'int':
@@ -191,7 +193,8 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
                 proc.add_string_measurement(parameter_description, parameter_value)
             elif parameter_descriptor[1] == 'bool':
                 proc.add_boolean_measurement(parameter_description, parameter_value)
-
+            '''
+            proc.add_string_measurement(parameter_description, parameter_value)
         else:
             # Need to find all versions of the parameters in subsections
             base_subsection_name = parameter_descriptor[3]
@@ -201,7 +204,7 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
                 if entry[:len(base_subsection_name)] == base_subsection_name and entry[-len(parameter_descriptor[0]):] == parameter_descriptor[0]:
                     parameter_value = parameter_dictionary[entry]
                     parameter_description = entry
-
+                    '''
                     if parameter_descriptor[1] == 'double':
                         proc.add_number_measurement(parameter_description, parameter_value)
                     elif parameter_descriptor[1] == 'int':
@@ -210,7 +213,8 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
                         proc.add_string_measurement(parameter_description, parameter_value)
                     elif parameter_descriptor[1] == 'bool':
                         proc.add_boolean_measurement(parameter_description, parameter_value)
-
+                    '''
+                    proc.add_string_measurement(parameter_description, parameter_value)
 
 
 
