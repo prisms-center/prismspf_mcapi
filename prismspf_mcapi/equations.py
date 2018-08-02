@@ -129,6 +129,9 @@ def create_equations_sample(expt, args, sample_name=None, verbose=False):
         equations_file = expt.project.add_file_by_local_path(file_name, verbose=verbose)
         proc.add_files([equations_file])
 
+        for sample in new_sample_list:
+            sample[0].link_files([equations_file])
+
         proc_list.append(proc)
 
         # new_sample_list[-1][0].pretty_print(shift=0, indent=2, out=sys.stdout)

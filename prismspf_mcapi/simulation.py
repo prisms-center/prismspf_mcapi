@@ -1,6 +1,7 @@
 """mc prismspf simulation subcommand"""
 
 import sys
+import glob
 import prismspf_mcapi
 from prismspf_mcapi.numerical_parameters import get_parameters_sample
 from materials_commons.cli import ListObjects
@@ -97,8 +98,35 @@ def create_simulation_sample(expt, sample_list, sample_name=None, verbose=False)
     proc = expt.get_process_by_id(proc.id)
 
     print("Adding input sample(s)...")
+    for sample in sample_list:
+        sample.direction = 'in'
+
     proc.add_input_samples_to_process(sample_list)
     print("Finshed adding input sample(s).")
+
+
+    ## Create sample
+    if sample_name is None:
+        sample_name = "Simulation Results"
+    new_sample = proc.create_samples([sample_name])
+
+    # Get the names of all of the *.vtu files in the cwd
+    vtu_file_names = glob.glob('*vtu')
+    print(vtu_file_names)
+
+    result_files = []
+    for vtu_file in vtu_file_names:
+        result_files.append(expt.project.add_file_by_local_path(vtu_file, verbose=verbose))
+
+      # I need to pass in the path to the PRISMS-PF app folder
+    for file in result_files:
+        file.direction = 'out'
+
+    proc.add_files(result_files)
+
+    #new_sample.link_files(result_files)
+    for sample in new_sample:
+        sample.link_files(result_files)
 
     return expt.get_process_by_id(proc.id)
 

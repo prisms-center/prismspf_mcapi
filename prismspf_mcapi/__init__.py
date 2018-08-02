@@ -13,12 +13,12 @@ def set_templates(value=None):
     if value is None:
         # dictionary of cmdname -> template_id
         templates = {
-          'numerical-parameters': 'global_Phase Field Simulation: Numerical Parameters',
+          'numerical-parameters': 'global_Phase Field Simulation: Set Numerical Parameters',
           'model-parameters': 'global_Phase Field Simulation: Set Model Parameters',
-          'software': 'global_Phase Field Simulation: Software',
-          'equations': 'global_Phase Field Simulation: Variable Name and Governing Equation',
+          'software': 'global_Phase Field Simulation: Set Software',
+          'equations': 'global_Phase Field Simulation: Set Variable Name and Governing Equation',
           'environment': 'global_Phase Field Simulation: Set Computing Environment',
-          'simulation': 'global_Phase Field Simulation',
+          'simulation': 'global_Phase Field Simulation: Run Simulation',
         }
     else:
         templates = value

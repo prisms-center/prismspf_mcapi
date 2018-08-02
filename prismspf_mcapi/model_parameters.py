@@ -135,7 +135,11 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
     # new_sample[0].pretty_print(shift=0, indent=2, out=sys.stdout)
 
     parameters_file = expt.project.add_file_by_local_path('parameters.in', verbose=verbose)  # I need to pass in the path to the PRISMS-PF app folder
+    parameters_file.direction = "in"
     proc.add_files([parameters_file])
+
+    for sample in new_sample:
+        sample.link_files([parameters_file])
 
     return expt.get_process_by_id(proc.id)
 
