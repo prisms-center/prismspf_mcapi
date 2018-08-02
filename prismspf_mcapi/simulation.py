@@ -64,7 +64,7 @@ def get_simulation_sample(expt, sample_id=None, out=sys.stdout):
     return simulation
 
 
-def create_simulation_sample(expt, sample_list, sample_name=None, verbose=False):
+def create_simulation_sample(expt, args, sample_list, process_name=None, sample_name=None, verbose=False):
     """
     Create a PRISMS-PF Simulation Sample
 
@@ -93,7 +93,10 @@ def create_simulation_sample(expt, sample_list, sample_name=None, verbose=False)
     # Process that will create samples
     proc = expt.create_process_from_template(template_id)
 
-    proc.rename('Run ' + 'Simulation')
+    if process_name is None:
+        proc.rename('Run Simulation')
+    else:
+        proc.rename(process_name)
 
     proc = expt.get_process_by_id(proc.id)
 
@@ -157,11 +160,11 @@ class SimulationSubcommand(ListObjects):
         if args.full_simulation:
             print("Creating input samples/processes for the simulation....")
 
-            proc = prismspf_mcapi.numerical_parameters.create_parameters_sample(expt, verbose=True)
+            proc = prismspf_mcapi.numerical_parameters.create_parameters_sample(expt, args, verbose=True)
             out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
             sample_list.extend(proc.output_samples)
 
-            proc = prismspf_mcapi.model_parameters.create_parameters_sample(expt, verbose=True)
+            proc = prismspf_mcapi.model_parameters.create_parameters_sample(expt, args, verbose=True)
             out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
             sample_list.extend(proc.output_samples)
 
@@ -174,7 +177,7 @@ class SimulationSubcommand(ListObjects):
                 out.write('Created process: ' + p.name + ' ' + p.id + '\n')
                 sample_list.extend(p.output_samples)
 
-            proc = prismspf_mcapi.software.create_software_sample(expt, verbose=True)
+            proc = prismspf_mcapi.software.create_software_sample(expt, args, verbose=True)
             out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
             sample_list.extend(proc.output_samples)
 
@@ -199,7 +202,17 @@ class SimulationSubcommand(ListObjects):
 
         # parameters_sample = get_parameters_sample(expt, args.input_sample_ids[0], out)
 
-        proc = create_simulation_sample(expt, sample_list, verbose=True)
+        if args.proc_name is None:
+            proc_name = None
+        else:
+            proc_name = " ".join(args.proc_name)
+
+        if args.samp_name is None:
+            samp_name = None
+        else:
+            samp_name = " ".join(args.samp_name)
+
+        proc = create_simulation_sample(expt, args, sample_list, proc_name, samp_name, verbose=True)
         out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
 
 
@@ -213,6 +226,12 @@ class SimulationSubcommand(ListObjects):
 
         input_id_help = "Specify in sample ids explicitly"
         parser.add_argument('--input-sample-ids', nargs='*', default=None, help=input_id_help)
+
+        sample_name_help = "Set the name of the results sample"
+        parser.add_argument('--samp-name', nargs='*', default=None, help=sample_name_help)
+
+        process_name_help = "Set the name of the process"
+        parser.add_argument('--proc-name', nargs='*', default=None, help=process_name_help)
 
         return
 

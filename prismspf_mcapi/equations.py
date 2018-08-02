@@ -74,7 +74,7 @@ def get_equations_sample(expt, sample_id=None, out=sys.stdout):
     return equations
 
 
-def create_equations_sample(expt, args, sample_name=None, verbose=False):
+def create_equations_sample(expt, args, process_name=None, sample_name=None, verbose=False):
     """
     Create a PRISMS-PF Equations Sample
 
@@ -112,14 +112,14 @@ def create_equations_sample(expt, args, sample_name=None, verbose=False):
         # Process that will create samples
         proc = expt.create_process_from_template(template_id)
 
-        proc.rename('Set ' + 'Equations: ' + equation_information.name)
+        if process_name is None:
+            proc.rename('Set Equations:' + ' ' + equation_information.name)
+        else:
+            proc.rename(process_name + ': ' + equation_information.name)
 
         if sample_name is None:
-            full_sample_name = "Equations"
-
-        full_sample_name = full_sample_name + ": " + equation_information.name
-
-        new_sample_list.append(proc.create_samples([full_sample_name]))
+            sample_name = "Equations:"
+        new_sample_list.append(proc.create_samples([sample_name + ': ' + equation_information.name]))
 
         proc.add_string_measurement('Variable Name', equation_information.name)
         proc.add_string_measurement('Variable Index', equation_information.index)
@@ -154,14 +154,28 @@ class EquationsSubcommand(ListObjects):
     def create(self, args, out=sys.stdout):
         proj = make_local_project()
         expt = make_local_expt(proj)
-        proc_list = create_equations_sample(expt, args, verbose=True)
+
+        if args.proc_name is None:
+            proc_name = None
+        else:
+            proc_name = " ".join(args.proc_name)
+
+        if args.samp_name is None:
+            samp_name = None
+        else:
+            samp_name = " ".join(args.samp_name)
+
+        proc_list = create_equations_sample(expt, args, proc_name, samp_name, verbose=True)
 
         for proc in proc_list:
             out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
 
     def add_create_options(self, parser):
-        """
-        """
+        sample_name_help = "Set the name of the output sample"
+        parser.add_argument('--samp-name', nargs='*', default=None, help=sample_name_help)
+
+        process_name_help = "Set the name of the process"
+        parser.add_argument('--proc-name', nargs='*', default=None, help=process_name_help)
 
     def list_data(self, obj):
         return {

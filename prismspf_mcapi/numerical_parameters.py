@@ -64,7 +64,7 @@ def get_parameters_sample(expt, sample_id=None, out=sys.stdout):
     return parameters
 
 
-def create_parameters_sample(expt, sample_name=None, verbose=False):
+def create_parameters_sample(expt, args, process_name=None, sample_name=None, verbose=False):
     """
     Create a PRISMS-PF Numerical Parameters Sample
 
@@ -91,7 +91,10 @@ def create_parameters_sample(expt, sample_name=None, verbose=False):
     ## Process that will create samples
     proc = expt.create_process_from_template(template_id)
 
-    proc.rename('Set ' + 'Numerical Parameters')
+    if process_name is None:
+        proc.rename('Set Numerical Parameters')
+    else:
+        proc.rename(process_name)
 
     ## Create sample
     if sample_name is None:
@@ -249,13 +252,28 @@ class NumParametersSubcommand(ListObjects):
     def create(self, args, out=sys.stdout):
         proj = make_local_project()
         expt = make_local_expt(proj)
-        proc = create_parameters_sample(expt, verbose=True)
+
+        if args.proc_name is None:
+            proc_name = None
+        else:
+            proc_name = " ".join(args.proc_name)
+
+        if args.samp_name is None:
+            samp_name = None
+        else:
+            samp_name = " ".join(args.samp_name)
+
+        proc = create_parameters_sample(expt, args, proc_name, samp_name, verbose=True)
         out.write('Created process: ' + proc.name + ' ' + proc.id + '\n')
 
 
     def add_create_options(self, parser):
-        #some_option_help = "Some option help info"
-        #parser.add_argument('--some_option', action="store_true", default=False, help=some_option_help)
+        sample_name_help = "Set the name of the output sample"
+        parser.add_argument('--samp-name', nargs='*', default=None, help=sample_name_help)
+
+        process_name_help = "Set the name of the process"
+        parser.add_argument('--proc-name', nargs='*', default=None, help=process_name_help)
+
         return
 
     def list_data(self, obj):
