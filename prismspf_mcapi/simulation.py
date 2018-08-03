@@ -224,6 +224,9 @@ class SimulationSubcommand(ListObjects):
         num_cores_help = "Add the number of cores to be used in the simulation"
         parser.add_argument('--num-cores', nargs=1, default=-1, help=num_cores_help)
 
+        version_help = "Set the version of the software"
+        parser.add_argument('--version', nargs='*', default=None, help=version_help)
+
         input_id_help = "Specify in sample ids explicitly"
         parser.add_argument('--input-sample-ids', nargs='*', default=None, help=input_id_help)
 

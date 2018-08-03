@@ -102,7 +102,7 @@ def create_equations_sample(expt, args, process_name=None, sample_name=None, ver
     # This function is different than the others, it will create one process and one sample for each variable/governing equation
 
     # First, parse the equations file
-    file_name = "equations.h"
+    file_name = "equations.cc"
     equation_information_list = parse_equations_file(file_name)
 
     # Second, create a sample for each variable/equation

@@ -115,13 +115,20 @@ def create_software_sample(expt, args, process_name=None, sample_name=None, verb
     proc.add_string_measurement('Simulation Software App Name', app_name)
 
     # Get the version
-    if (os.path.isfile('../../version')):
-        with open('../../version') as f:
-            version = f.read()
-        f.closed
+    if args.version is None:
+        if (os.path.isfile('version')):
+            with open('version') as f:
+                version = f.read()
+            f.closed
+        elif (os.path.isfile('../../version')):
+            with open('../../version') as f:
+                version = f.read()
+            f.closed
+        else:
+            print('Did not find the \'version\' file where expected (two directories up from the current working directory). The version is being uploaded as \'unknown\'.\n')
+            version = 'unknown'
     else:
-        print('Did not find the \'version\' file where expected (two directories up from the current working directory). The version is being uploaded as \'unknown\'.\n')
-        version = 'unknown'
+        version = args.version
 
     proc.add_string_measurement('Simulation Software Version', version)
 
@@ -175,6 +182,9 @@ class SoftwareSubcommand(ListObjects):
 
 
     def add_create_options(self, parser):
+        version_help = "Set the version of the software"
+        parser.add_argument('--version', nargs='*', default=None, help=version_help)
+
         sample_name_help = "Set the name of the output sample"
         parser.add_argument('--samp-name', nargs='*', default=None, help=sample_name_help)
 
